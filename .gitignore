@@ -1,4 +1,4 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
-.log
-.pyc
+*.log
+*.pyc

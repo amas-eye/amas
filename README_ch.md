@@ -1,16 +1,18 @@
-# Amas-Eye
+# Amas
 
 [![Docker Automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)]()
 
+Amas is recursive acronym for “Amas, monitor alert system”.
+
 选择语言: [English](README.md) | [中文](README_ch.md)
 
-## Amas-Eye是什么
-Amas是基于OpenTSDB开发的统一监控平台，其特点包括如下：  
+## Amas是什么
+Amas是基于OpenTSDB开发的统一监控平台，为大数据平台而生，其特点包括：  
 1. 覆盖大数据平台(Hadoop/Spark/HBase/Kakfa等)的常见监控指标
 2. 采集器高度可扩展，支持不同脚本语言(Python/Perl/Shell/...)编写的的自定义采集指标
 3. 基于HBase/OpenTSDB的海量数据存储架构，可快速读写大量监控指标
-4. 独立开发的Web可视化界面，功能强大
-5. 独立开发的告警引擎，可水平扩展告警处理能力
+4. 清新简约的Web可视化界面，功能强大且易用
+5. 分布式告警引擎，可水平扩展系统处理能力
 6. 基于OpenTracing的调用链路监控数据采集和展示
 7. 支持docker部署运行
 7. (More...)

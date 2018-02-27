@@ -17,6 +17,8 @@ Amas是基于OpenTSDB开发的统一监控平台，为大数据平台而生，�
 7. 支持docker部署运行
 7. (More...)
 
+## 项目成员
+Amas现由[@Eacon](https://github.com/EaconTang)和他的开发团队负责维护, 详见[AUTHORS](.AUTHORS).
 
 ## 技术栈
 * 编程语言：Python, NodeJS

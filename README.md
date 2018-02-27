@@ -19,6 +19,10 @@ Amas is a monitor alert system based on OpenTSDB, for big-data platform, with it
 7. (More...)
 
 
+## Authors
+Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop team, see more in [AUTHORS](.AUTHORS).
+
+
 ## Technology Stack
 * Program language：Python, NodeJS
 * Web Service：Vue, ECharts, Express

@@ -47,13 +47,13 @@ Amas是基于OpenTSDB开发的统一监控平台，其特点包括如下：
  -->
 
 ## 部分功能截图
-![](./docs/img/(Dashboard1.png)
-![](./docs/img/(Dashboard2.png)
-![](./docs/img/(chartview.png)
-![](./docs/img/(alert1.png)
-![](./docs/img/(alert2.png)
-![](./docs/img/(callchain1.png)
-![](./docs/img/(callchain2.png)
+![](./docs/img/Dashboard1.png)  
+![](./docs/img/Dashboard2.png)  
+![](./docs/img/chartview.png)  
+![](./docs/img/alert1.png)  
+![](./docs/img/alert2.png)  
+![](./docs/img/callchain1.png)  
+![](./docs/img/callchain2.png)  
 
 
 <!-- ## 技术架构 -->

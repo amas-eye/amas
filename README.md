@@ -20,7 +20,7 @@ Amas is a monitor alert system based on OpenTSDB, for big-data platform, with it
 
 
 ## Authors
-Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop team, see more in [AUTHORS](.AUTHORS).
+Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop team, see more in [AUTHORS](AUTHORS).
 
 
 ## Technology Stack

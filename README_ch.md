@@ -5,8 +5,7 @@
 选择语言: [English](README.md) | [中文](README_ch.md)
 
 ## Amas-Eye是什么
-Amas 是“Amas, monitor alert system”的递归首字母缩写。  
-Amas是基于OpenTSDB开发的统一监控平台，其特点包括如下：
+Amas是基于OpenTSDB开发的统一监控平台，其特点包括如下：  
 1. 覆盖大数据平台(Hadoop/Spark/HBase/Kakfa等)的常见监控指标
 2. 采集器高度可扩展，支持不同脚本语言(Python/Perl/Shell/...)编写的的自定义采集指标
 3. 基于HBase/OpenTSDB的海量数据存储架构，可快速读写大量监控指标

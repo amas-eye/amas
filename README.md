@@ -15,8 +15,9 @@ Amas is a monitor alert system based on OpenTSDB, for big-data platform, with it
 4. Web UI is sexy, powerful and easy to use
 5. Easily extend system processing ability on its distributed alert engine
 6. Callchain metric collect and display based on OpenTracing
-7. Docker and swarm support
-7. (More...)
+7. Multi-channel and customizable notify method, wechat/mail/slack already support
+8. Docker and swarm support
+9. (More...)
 
 
 ## Authors

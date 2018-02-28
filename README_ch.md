@@ -13,9 +13,10 @@ Amas是基于OpenTSDB开发的统一监控平台，为大数据平台而生，�
 3. 基于HBase/OpenTSDB的海量数据存储架构，可快速读写大量监控指标
 4. 清新简约的Web可视化界面，功能强大且易用
 5. 分布式告警引擎，可水平扩展系统处理能力
-6. 基于OpenTracing的调用链路监控数据采集和展示
-7. 支持docker部署运行
-7. (More...)
+6. 多渠道、可自定义的告警通知方式，自带微信、邮件以及Slack的实现
+7. 基于OpenTracing的调用链路监控数据采集和展示
+8. 支持docker部署运行
+9. (More...)
 
 ## 项目成员
 Amas现由[@Eacon](https://github.com/EaconTang)和他的开发团队负责维护, 详见[AUTHORS](AUTHORS).

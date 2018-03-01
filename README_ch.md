@@ -35,6 +35,9 @@ Amas现由[@Eacon](https://github.com/EaconTang)和他的开发团队负责维�
 * Linux(内核版本2.6+)
 * Centos7(推荐)
 
+## 其他说明
+* Amas的内部开发代号为argus，这也会保留在开源项目的源码中
+
 <!--
 ## Docker快捷部署
 

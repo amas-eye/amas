@@ -38,6 +38,10 @@ Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop tea
 * Linux(Kernel2.6+)
 * Centos7(Recommend)
 
+## Note
+* Amas' code name is "argus", and this would be reserved.
+
+
 <!--
 ## Docker快捷部署
 

@@ -6,3 +6,4 @@
 __pycache__/
 .gitconfig
 .DS_Store
+node_modules/

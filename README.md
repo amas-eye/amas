@@ -39,7 +39,7 @@ Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop tea
 * Centos7(Recommend)
 
 ## Note
-* Amas' code name is "argus", and this would be reserved.
+* Amas' code name is "argus", and this would be reserved in source code.
 
 
 <!--

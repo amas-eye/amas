@@ -4,3 +4,5 @@
 *.pyc
 .vscode/
 __pycache__/
+.gitconfig
+.DS_Store

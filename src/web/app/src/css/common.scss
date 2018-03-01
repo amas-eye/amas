@@ -1,0 +1,12 @@
+/*全局样式*/
+
+.clickable {
+    /*可点击*/
+    cursor: pointer !important;
+}
+
+.disable {
+    /*不可操作*/
+    cursor: no-drop !important;
+    background-color: rgb(153, 153, 153);
+}

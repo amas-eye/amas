@@ -1,0 +1,24 @@
+{
+    "name": "argus_server",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "pm2 start ecosystem.config.js --only node_test",
+        "start": "pm2 start ecosystem.config.js --only node_app",
+        "sim_start": "node ./bin/www.js"
+    },
+    "dependencies": {
+        "body-parser": "^1.17.1",
+        "cookie-parser": "^1.4.3",
+        "cors": "^2.8.3",
+        "debug": "^2.6.9",
+        "ejs": "^2.5.6",
+        "express": "^4.15.2",
+        "express-http-proxy": "^1.0.6",
+        "express-winston": "^2.4.0",
+        "moment": "^2.18.1",
+        "mongoose": "^4.9.4",
+        "serve-favicon": "^2.3.2",
+        "winston": "^2.3.1"
+    }
+}

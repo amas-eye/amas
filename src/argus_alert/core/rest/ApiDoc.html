@@ -1,0 +1,26 @@
+{% autoescape None %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>API Documents | Argus Alert</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <br>
+
+    <div class="col-md-3"></div>
+
+    <div class="list-group col-md-6">
+        {% for item in items %}
+            <li class="list-group-item">{{ item }}</li>
+        {% end %}
+    </div>
+
+    <div class="col-md-3"></div>
+
+</body>
+</html>

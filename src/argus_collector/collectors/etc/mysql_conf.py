@@ -1,6 +1,0 @@
-# coding=utf8
-
-MYSQL_USER_NAME = "root"
-MYSQL_USER_PASSWORD = "123456"
-MYSQL_HOST = "127.0.0.1"
-MYSQL_PORT = "3307"

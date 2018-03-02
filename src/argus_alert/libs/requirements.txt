@@ -1,6 +1,0 @@
-requests
-redis
-tornado
-pymongo
-gevent
-aiohttp

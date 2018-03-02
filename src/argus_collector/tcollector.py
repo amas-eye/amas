@@ -1063,18 +1063,23 @@ def push_tcollector_status():
         # pdb.set_trace()
 
         data = json.dumps(_data)
-        
-        url = 'http://{0}:{1}/api/collector/agent'.format(AGENT_MANAGER_HOST, AGENT_MANAGER_PORT)
-        req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
-        response_content = urllib2.urlopen(req).read()
-        LOG.warn('api connected')
-
-        response_json = json.loads(response_content)
-        return_code = response_json['code']
-        if return_code != CODE_OK:
+        url_list = []
+        for i in range(1,AGENT_MANAGER_TOTAL+1):
+            manager_host = eval('AGENT_MANAGER_HOST' + str(i))
+            manager_port = eval('AGENT_MANAGER_PORT' + str(i))
+            LOG.debug('agent_manager is {0}'.format(manager_host))
+            LOG.debug('agent_manager_portis {0}'.format(manager_port))
+            url = 'http://{0}:{1}/api/collector/agent'.format(manager_host, manager_port)
+            req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
+            response_content = urllib2.urlopen(req).read()
+            LOG.warn('api connected')
+            response_json = json.loads(response_content)
+            return_code = response_json['code']
+            if return_code != CODE_OK:
             # TODO log or resend?
-            LOG.warn('Failed to push tcollector status to agent manager localhost to [{0}:{1}]'.format(OPEN_TSDB_HOST, OPEN_TSDB_PORT) )
-            pass
+                LOG.warn('Failed to push tcollector status to agent manager localhost to [{0}:{1}]'.format(OPEN_TSDB_HOST, OPEN_TSDB_PORT) )
+                pass
+            LOG.debug('PUSH to tcollector status to manager [{0}:{1}]'.format(manager_host,manager_port))
         time.sleep(PUSH_STATUS_FREQUENCY)
 
 

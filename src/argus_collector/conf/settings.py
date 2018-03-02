@@ -4,10 +4,26 @@ default settings
 OPEN_TSDB_HOST = 'localhost'
 OPEN_TSDB_PORT = 4242
 
-AGENT_MANAGER_HOST = 'localhost'
-AGENT_MANAGER_PORT = 8001
+"""
+in the agent manager part , you can add manager as you want
+as long as following the rule is 
+AGENT_MANAGER_HOSTx (x in here mean an interger)
+AGENT_MANAGER_PORTx (x in here mean an interger)
+and finally adding up the AGENT_MANAGER_TOTAL as the manager you have added
+"""
+
+AGENT_MANAGER_HOST1 = 'localhost'
+AGENT_MANAGER_PORT1 = 8001
+
+AGENT_MANAGER_HOST2 = '192.168.0.249'
+AGENT_MANAGER_PORT2 =  8001
+
+AGENT_MANAGER_TOTAL = 2
+
 
 PUSH_STATUS_FREQUENCY = 1 * 60
+
+CONFIG_SENDER_FREQUENCY = 5 * 60
 
 PUSH_STATUS = True
 

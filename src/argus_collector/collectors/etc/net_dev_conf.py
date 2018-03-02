@@ -3,6 +3,8 @@
 网卡采集器的配置
 """
 
+Property = ['NETWORK_INTERFACE_CARD','TIMESTAMP_ALIGN','FIELDS']
+
 # 网卡，可以是单个字符串，也可以是一个数组（同时采集多个网卡）
 NETWORK_INTERFACE_CARD = ['bond0']
 

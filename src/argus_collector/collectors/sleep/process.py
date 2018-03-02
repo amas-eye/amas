@@ -30,9 +30,9 @@ def main():
         if pids is not None:
             if len(pids) == 0:
                 # 进程不存在
-                print "{0} {1} {2} interval={3}".format(
+                print("{0} {1} {2} interval={3}".format(
                     k, send_time, 0, TIME_INTERVAL
-                )
+                ))
                 continue
             for pid in pids:
                 # 进程存在，发送指标值为1
@@ -52,8 +52,8 @@ def main():
                     if state is not None:
                         print_str += ' state={0}'.format(state)
                         runtime_str += ' state={0}'.format(state)
-                print print_str
-                print runtime_str
+                print(print_str)
+                print(runtime_str)
     sys.stdout.flush()
 
 

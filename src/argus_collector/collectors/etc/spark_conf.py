@@ -11,6 +11,9 @@ which make the collector to fetch the whole application records
 """
 import os
 
+Property = ['SPARK_HOST','SPARK_RUNNING_PORT','SPARK_HISTORY_SERVER_HOST',
+            'SPARK_HISTORY_SERVER_PORT','LAST_TIME_PATH']
+
 SPARK_HOST = 'localhost'
 SPARK_RUNNING_PORT = 4040
 

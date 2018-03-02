@@ -94,8 +94,13 @@ def get_data(host, port, metric_list, ts, tag):
             for item in metric_list[mbean]:
                 value = useable_content[item]
                 print_metric(item, ts, value, tag)
-        except IndexError or  urllib2.URLError:
+        except IndexError:
             continue
+        except urllib2.URLError:
+            dead_ts = int(time.time())
+            print "hadoop.hdfs.alive {t} {v}".format(t=dead_ts, v=0)
+            return 0
+    return 1
 
 
 def main(host, metric_list, tag, hostname):
@@ -107,8 +112,9 @@ def main(host, metric_list, tag, hostname):
     hosttag = "host={hostname} ".format(hostname=hostname)
     tags = "{hosttag}{tag}".format(hosttag=hosttag, tag=tag)
     ts = time.time()
-    get_data(host, port, metric_list, ts, tags)
-
+    interface_alive = get_data(host, port, metric_list, ts, tags)
+    if interface_alive == 1:
+        print "hadoop.hdfs.alive {t} {v}".format(t=ts, v=1)
 
 if __name__ == "__main__":
     confdir = hdfs_config_path

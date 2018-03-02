@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding=utf-8
 """采集管理的api
 
@@ -8,7 +7,6 @@ import fcntl
 import json
 import os
 import sys
-import signal
 import time
 import threading
 from optparse import OptionParser
@@ -17,7 +15,7 @@ from multiprocessing import Process
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from argus_collector.conf.settings import *
-from argus_collector.web.bottle import Bottle, run, request, template, abort, response
+from argus_collector.web.bottle import Bottle, run, request, template, abort
 from argus_collector.web.status_code import *
 from argus_collector.web.data.settings import *
 from argus_collector.web.utils import get_logger, get_tags
@@ -26,6 +24,7 @@ import argus_collector.web.db as db
 import argus_collector.web.status_code as status_code
 
 api_logger = get_logger(API_LOG)
+config_dict = {}
 
 def serve_app():
     """"""
@@ -114,6 +113,26 @@ def serve_app():
             return {'code': CODE_FAIL, 'msg': str(e)}
         else:
             return {'code': CODE_OK}
+
+    @app.post('/api/collector/config_collector')
+    #### 把每台监控机的每个collector状态信息保留到一个全局变量中
+    def post_agent():
+        try:
+            config_info = request.json
+            host = config_info['name']
+            config_dict[host] = config_info
+            return {'code':CODE_OK}
+        except Exception as e:
+            return {'code': CODE_FAIL}
+
+    @app.get('/api/collector/get_config')
+    ## 用于检查和返回监控机所有采集器的配置
+    def config_getter():
+        result = []
+        result.append(config_dict)
+        rr = json.dumps(result)
+        return rr
+
 
     @app.get('/api/tsdb')
     def tsdb_helper():

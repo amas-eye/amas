@@ -22,6 +22,8 @@ FLUME_METRICS = {
 }
 """
 
+__all__ = ['FLUME_METRIS', 'TIMESTAMP_ALIGN', 'FLUME_HOST', 'FLUME_PORT','FLUME_URL_ENDPOINT','ALL_LOWER_CASE']
+
 # json格式监控数据中的字段选择（大小写敏感）
 FLUME_METRIS = {
     "SINK.sink1.EventDrainSuccessCount": ["SINK.sink1", "EventDrainSuccessCount"],

@@ -7,5 +7,5 @@ __pycache__/
 .gitconfig
 .DS_Store
 node_modules/
-tmp/
+tmp/*
 !tmp/.gitkeep

@@ -1,0 +1,4 @@
+1. 非latest，非聚合 测试通知和历史记录通过 Done （ttt)
+2. 非latest, 聚合   DOne ,历史记录有问题
+3. latest， 非聚合   DONE
+4. latest， 聚合    Done

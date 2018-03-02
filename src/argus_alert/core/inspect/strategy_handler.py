@@ -28,7 +28,7 @@ import asyncio
 import json
 from ast import literal_eval
 from abc import ABCMeta, abstractmethod, abstractproperty
-
+import urllib
 import requests
 from redis import Redis, ConnectionPool
 from pymongo import MongoClient
@@ -36,6 +36,11 @@ from bson.objectid import ObjectId
 
 
 from argus_alert.core.utils.log import timed_logger
+
+## for vscode server debug
+import ptvsd
+# ptvsd.settrace(None,('0.0.0.0',13999))
+# ptvsd.enable_attach("my_secret",address=('0.0.0.0', 13999))
 
 LOG = timed_logger()
 HandlerDict = {}
@@ -68,6 +73,7 @@ def register_handler(cls):
 
 STATUS_OK = 'ok'
 STATUS_ALERT = 'alert'
+Chain_base_not_threhold_list = ['equal', 'not equal']
 
 
 class IHandler(object):
@@ -150,12 +156,44 @@ class IHandler(object):
         # return literal_eval(f'float({real_val}) {comparison} float({expect_val})')
         return eval(f'float({real_val}) {comparison} float({expect_val})')
 
-    def check_group_state(self, strategy, task_time, group_state):
+    def push_channel(self,data,r):
+        """
+        In order to push message into the channel user selected to inform
+        把对应的告警信息推送到对应的通知信道
+        """
+        channels = self.get_channel()
+        for channel in channels:
+            if channel == 'notice:slack':
+                slack = self.get_slack_attr()
+                data.update(**slack)
+            elif channel == 'notice:mail':
+                mail = self.get_mail_attr()
+                data.update(**mail)
+            elif channel == 'notice:wechat':
+                wechat = self.get_wechat_attr()
+                data.update(**wechat)
+            r.publish(channel, json.dumps(data))
+            LOG.debug(f'Message is published by channel({channel}) => {data}')
+
+
+    def check_group_state(self, strategy, task_time, group_state,aggregation):
         """检查判断每个分组的状态，如有变化，发送通知到redis消息队列"""
         ### 测试的时候需要对mongo的策略添加通知组和通知个人字段
         ### 如果需要添加单独的组字段，只需进行吧group 添加到total_message中，即可，
         r = self.redis_cli
         STRATEGY_NOTICE = False
+        if aggregation == True:
+            alert_list = []
+            t_message = {
+                    'strategy_id': str(strategy['_id']),
+                    'strategy_name': strategy['property']['name'],
+                    'alert_time': task_time,
+                    'alert_info': [],
+                    'is_recover': True,
+                    "level":strategy["level"],
+                    "group":'',
+                    "type":strategy['type']
+                }
         for group, state in group_state.items():
             ret = r.getset(f'strategy:{strategy["_id"]}:{group}:state', json.dumps(state))
             GROUP_NOTICE = False
@@ -167,8 +205,6 @@ class IHandler(object):
                 if last_group_state['status'] != state['status']:
                     GROUP_NOTICE = True
             if GROUP_NOTICE:
-                STRATEGY_NOTICE = True
-                # alert_type = '告警产生' if state['status'] == STATUS_ALERT else '告警撤销'
                 message = {
                     'strategy_id': str(strategy['_id']),
                     'strategy_name': strategy['property']['name'],
@@ -176,8 +212,13 @@ class IHandler(object):
                     'alert_info': f'{state["info"]}',
                     'is_recover': True if state['status'] == STATUS_OK else False,
                     "level":strategy["level"],
-                    "group":group
+                    "group":group,
+                    "type":strategy['type']
                 }
+
+            if GROUP_NOTICE and (not aggregation):
+                STRATEGY_NOTICE = True
+                alert_type = '告警产生' if state['status'] == STATUS_ALERT else '告警撤销'
                 LOG.debug(f'message Group {group}')
                 LOG.debug(f'message is {message}')
                 total_message = {} ## 对告警Message进行重新封装，然后放到推送队列当中
@@ -197,19 +238,41 @@ class IHandler(object):
                         push_list.append(user)
                 # push_list.append(push_user)
                 total_message['user'] = push_list
-                channels = self.get_channel()
-                for channel in channels:
-                    if channel == 'notice:slack':
-                        slack = self.get_slack_attr()
-                        total_message.update(**slack)
-                    elif channel == 'notice:mail':
-                        mail = self.get_mail_attr()
-                        total_message.update(**mail)
-                    elif channel == 'notice:wechat':
-                        wechat = self.get_wechat_attr()
-                        total_message.update(**wechat)
-                    r.publish(channel, json.dumps(total_message))
-                    LOG.debug(f'Message is published by channel({channel}) => {total_message}')
+                total_message['aggregation'] = False
+                self.push_channel(total_message,r)
+                
+            elif GROUP_NOTICE and aggregation:
+                STRATEGY_NOTICE = True
+                t_message['alert_info'].append(message)
+                t_message['group'] += (message['group'] +' ')
+                if message['is_recover'] == False:
+                    t_message['is_recover'] = False
+                elif message['is_recover'] == True and t_message['is_recover'] == True:
+                    t_message['is_recover'] == True
+                else:
+                    t_message['is_recover'] == False
+                
+        if aggregation and STRATEGY_NOTICE:
+            total_message = {}
+            total_message['message'] = t_message
+            total_message['aggregation'] = True
+            push_group = strategy['notify']['notify_group'] # 把订阅组的组名获取然后去查mongo表
+            client = MongoClient('192.168.0.253', 27017)
+            col = client['argus-users']['groups']
+            LOG.debug("finding")
+            # rec = col.find({"group_name": push_group})
+            LOG.debug("find finish")
+            # LOG.debug(f'rec is {rec}')
+            push_list = []
+            for _ in push_group:
+                user_list = _["group_names_check"]
+                for user in user_list:
+                    push_list.append(user)
+            # push_list.append(push_user)
+            total_message['user'] = push_list
+            total_message['aggregation'] = True
+            self.push_channel(total_message,r)
+
         return STRATEGY_NOTICE
 
     def set_strategy_status(self, strategy_id, status):
@@ -275,22 +338,38 @@ class BasicAlert(IHandler):
 
     @property
     def query_url(self):
-        """query url 构造"""
+        """
+        query url 构造，新增最新值的查询
+
+        constr query url,add the latest value query
+        """
         if not self._query_url:
             tsd_addr = self.tsd_addr
             tsd_rule = self.strategy.get('tsd_rule', {})
             metric = tsd_rule.get('metric', '')
-            start, end = self.query_time()
-            aggregate = self._default_aggregate
-            sample = tsd_rule.get('sample', '')
-            if sample:
-                sample = f':0all-{sample}'
-            tags = tsd_rule.get('group', [])
-            if tags:
-                tags_str = '{' + ','.join([f'{kv["key"]}={kv["value"]}' for kv in tags]) + '}'
+            if self.strategy['latest'] == False:
+                start, end = self.query_time()
+                sample = tsd_rule.get('sample', '')
+                aggregate = self._default_aggregate
+                if sample:
+                    sample = f':0all-{sample}'
+                tags = tsd_rule.get('group', [])
+                if tags:
+                    tags_str = '{' + ','.join([f'{kv["key"]}={kv["value"]}' for kv in tags]) + '}'
+                else:
+                    tags_str = ''
+                self._query_url = f'http://{tsd_addr}/api/query?start={start}&end={end}&m={aggregate}{sample}:{metric}{tags_str}'
             else:
-                tags_str = ''
-            self._query_url = f'http://{tsd_addr}/api/query?start={start}&end={end}&m={aggregate}{sample}:{metric}{tags_str}'
+                get_tuid_url = f'http://{tsd_addr}/api/query/last?timeseries={metric}'
+                LOG.debug(f'get_tuid_url is {get_tuid_url}')
+                tuids_data = urllib.request.urlopen(get_tuid_url)
+                tuids_response = tuids_data.read()
+                tuids_content = tuids_response.decode('ascii')
+                tuids_content = json.loads(tuids_content)
+                tuids = [_['tsuid'] for _ in tuids_content]
+                tuids_str = ",".join(tuids)
+                self._query_url = f'http://{tsd_addr}/api/query/last?tsuids={tuids_str}&back_scan=24&resolve=true'
+                
         return self._query_url
 
     def run(self):
@@ -303,122 +382,402 @@ class BasicAlert(IHandler):
         self.check()
         task_time = self.task_time
         strategy_id = str(self.strategy['_id'])
+        q_url = self._query_url
+        LOG.debug(f'query url is {q_url}')
         res = requests.get(self.query_url).json()   # TODO: 超时处理/连接池
         LOG.debug('Request: {}, Got: {}'.format(self.query_url, res))
-
         group_state = {}
         flag_strategy_ok = True
         if not res:
-            # 无数据，默认为OK # TODO: 无数据，是否应该设置为Unknown状态？
             strategy_state = {
-                'status': STATUS_OK,
+                'status': STATUS_ALERT,
                 'timestamp': int(task_time),
             }
         else:
-            for data in res:
-                # 分组信息
-                group = {k: v for k, v in data['tags'].items() if k in self.groups_keys}
-                group_str = ','.join([f'{k}={v}' for k, v in group.items()])
-                # 分组的实际结果
-                dps_values = list(data.get('dps', {}).values())
-                if not dps_values:
-                    continue
-                else:
-                    real_value = float(format(dps_values[0], '0.2f'))
-                # 真实值与阈值比较
-                comparison = self.strategy.get('tsd_rule', {}).get('comparison', '==')
-                threshold = self.strategy.get('tsd_rule', {}).get('threshold', '0')
-                if self.comp(real_value, comparison, threshold):
-                    flag_strategy_ok = False
-                    state = {'status': STATUS_ALERT}
-                else:
-                    state = {'status': STATUS_OK}
-                # 保存该分组状态，字典序列化json
-                state['timestamp'] = int(task_time)
-                state['info'] = self.notify_message(comparison, threshold, real_value)
-                group_state[group_str] = state
-                LOG.debug(f'group: {group_str}, state: {state}')
-
-            # 更新该策略的最新状态，写入redis，检查是否发送通知
-            # 多个分组，记录OK或者Alert，以及分组keys
-            strategy_state = {
-                'status': STATUS_OK if flag_strategy_ok else STATUS_ALERT,
-                'timestamp': int(task_time),
-                'group_keys': list(group_state.keys())  #每个分组group小项的信息
-            }
-            if len(list(group_state.keys())) == 1:
-                # 只有一个分组，分组的info即告警策略的info
-                group_info = list(group_state.values())[0]['info']
-                strategy_state.update({'info': group_info})
+            if self.strategy['latest'] == False:
+                '''
+                This part is for non latest alert, because of the query url is different 
+                '''
+                LOG.debug('in the none latest handler')
+                for data in res:
+                    # 分组信息
+                    group = {k: v for k, v in data['tags'].items() if k in self.groups_keys}
+                    group_str = ','.join([f'{k}={v}' for k, v in group.items()])
+                    # 分组的实际结果
+                    dps_values = list(data.get('dps', {}).values())
+                    if not dps_values:
+                        continue
+                    else:
+                        real_value = float(format(dps_values[0], '0.2f'))
+                    # 真实值与阈值比较
+                    comparison = self.strategy.get('tsd_rule', {}).get('comparison', '==')
+                    threshold = self.strategy.get('tsd_rule', {}).get('threshold', '0')
+                    if self.comp(real_value, comparison, threshold):
+                        flag_strategy_ok = False
+                        state = {'status': STATUS_ALERT}
+                    else:
+                        state = {'status': STATUS_OK}
+                    # 保存该分组状态，字典序列化json
+                    state['timestamp'] = int(task_time)
+                    state['info'] = self.notify_message(comparison, threshold, real_value)
+                    group_state[group_str] = state
+                    LOG.debug(f'group: {group_str}, state: {state}')
+                # 更新该策略的最新状态，写入redis，检查是否发送通知
+                # 多个分组，记录OK或者Alert，以及分组keys
+                strategy_state = {
+                    'status': STATUS_OK if flag_strategy_ok else STATUS_ALERT,
+                    'timestamp': int(task_time),
+                    'group_keys': list(group_state.keys())  #每个分组group小项的信息
+                }
+                if len(list(group_state.keys())) == 1:
+                    # 只有一个分组，分组的info即告警策略的info
+                    group_info = list(group_state.values())[0]['info']
+                    strategy_state.update({'info': group_info})
+                # LOG.debug(f'strategy({strategy_id}) status: {strategy_state}')
+            else:
+                """
+                This part is for latest query alert 
+                待测试，需要把两种情况处理成函数进行处理
+                """
+                LOG.debug("in latest handler")
+                for data in res:
+                    group = {k: v for k, v in data['tags'].items() if k in self.groups_keys}
+                    group_str = ','.join([f'{k}={v}' for k, v in group.items()])
+                    comparison = self.strategy.get('tsd_rule', {}).get('comparison', '==')
+                    threshold = self.strategy.get('tsd_rule', {}).get('threshold', '0')
+                    value = data['value']
+                    value = float(value)
+                    value = round(value,2)
+                    if self.comp(value,comparison,threshold):
+                        flag_strategy_ok = False 
+                        state = {'status': STATUS_ALERT}
+                    else:
+                        state = {'status': STATUS_OK}
+                    state['timestamp'] = int(task_time)
+                    state['info'] = self.notify_message(comparison,threshold,value)
+                    group_state[group_str] = state
+                    strategy_state = {
+                    'status': STATUS_OK if flag_strategy_ok else STATUS_ALERT,
+                    'timestamp': int(task_time),
+                    'group_keys': list(group_state.keys())  #每个分组group小项的信息
+                    }
+                    if len(list(group_state.keys())) == 1:
+                    # 只有一个分组，分组的info即告警策略的info
+                        group_info = list(group_state.values())[0]['info']
+                        strategy_state.update({'info': group_info})
         LOG.debug(f'strategy({strategy_id}) status: {strategy_state}')
         r = self.redis_cli
         # 更新redis中的策略状态
         r.set(f'strategy:{strategy_id}:state', json.dumps(strategy_state))
-        strategy_notice = self.check_group_state(self.strategy, task_time, group_state)
+        aggregation = self.strategy['aggregation']
+        strategy_notice = self.check_group_state(self.strategy, task_time, group_state,aggregation)
         if strategy_notice:
             self.set_strategy_status(strategy_id=strategy_id, status=strategy_state['status'])
 
 
 @register_handler
-class AlwaysAlertHandler(IHandler):
-    """总是告警的策略类型（用于测试）"""
-    TYPE = 'test'
-    _status = STATUS_OK
+class ChainBaseAlertHandler(IHandler):
+    TYPE = 'ChainBase'
 
-    def change_status(self):
-        if self._status == STATUS_OK:
-            self._status = STATUS_ALERT
+    def __init__(self, *args, **kwargs):
+        IHandler.__init__(self, *args, **kwargs)
+        self._query_url = ''
+        self._former_query_url = ''
+        self._tag_keys = []
+        self._group = ''
+        self._default_aggregate = 'sum'
+
+    def notify_message(self, relation, diff_value=None, threshold=None, result=None):
+        # return f'告警条件: {comparison} {threshold}, 检查值: {real_value}'
+        if relation not in Chain_base_not_threhold_list:
+            show_diff = diff_value * 100
+            return f'告警条件: {relation} {threshold}%, 检查值: {show_diff}%'
         else:
-            self._status = STATUS_OK
+            return f'告警条件: {relation}, 检查值: {result}'
 
-    def run(self):
-        """"""
-        self.change_status()
-        status = self._status
-        strategy_id = str(self.strategy['_id'])
-        task_time = int(self.task_time)
+    @staticmethod
+    def comp(now_val, relation, former_val, threshold=None):
+        """比较符判断"""
+        # return literal_eval(f'float({real_val}) {comparison} float({expect_val})')
+        if relation in Chain_base_not_threhold_list:
+            if relation == 'equal':
+                result = ( now_val == former_val )
+            else:
+                result = ( now_val != former_val)
+            return (result,None)
+        else:
+            n = float(now_val)
+            f = float(former_val)
+            real_diff = abs(n-f)
+            percentage = float((real_diff/f))
+            real_threshold = ( threshold / 100)
+            result = ( percentage > real_threshold)
+            return (result,percentage)
+
+    @property
+    def query_url(self):
+        """
+        query url 构造，环比上暂时不支持最新值的查询
+
+        constr query url,so far not supprt the latest value query
+        """
+        if not self._query_url:
+            tsd_addr = self.tsd_addr
+            tsd_rule = self.strategy.get('tsd_rule', {})
+            metric = tsd_rule.get('metric', '')
+            hb_time_interval = tsd_rule.get('hb_interval')
+            hb_time_unit = tsd_rule.get('hb_unit')
+            time_diff = hb_time_interval * self.unit_to_seconds(hb_time_unit)
+            if self.strategy['latest'] == False:
+                start, end = self.query_time()
+                sample = tsd_rule.get('sample', '')
+                aggregate = self._default_aggregate
+                if sample:
+                    sample = f':0all-{sample}'
+                tags = tsd_rule.get('group', [])
+                if tags:
+                    tags_str = '{' + ','.join([f'{kv["key"]}={kv["value"]}' for kv in tags]) + '}'
+                else:
+                    tags_str = ''
+                self._query_url = f'http://{tsd_addr}/api/query?start={start}&end={end}&m={aggregate}{sample}:{metric}{tags_str}'
+                former_start = start - time_diff
+                former_end = end - time_diff
+                self._former_query_url = f'http://{tsd_addr}/api/query?start={former_start}&end={former_end}&m={aggregate}{sample}:{metric}{tags_str}'
+            # else:
+            #     get_tuid_url = f'http://{tsd_addr}/api/query/last?timeseries={metric}'
+            #     LOG.debug(f'get_tuid_url is {get_tuid_url}')
+            #     tuids_data = urllib.request.urlopen(get_tuid_url)
+            #     tuids_response = tuids_data.read()
+            #     tuids_content = tuids_response.decode('ascii')
+            #     tuids_content = json.loads(tuids_content)
+            #     tuids = [_['tsuid'] for _ in tuids_content]
+            #     tuids_str = ",".join(tuids)
+            #     self._query_url = f'http://{tsd_addr}/api/query/last?tsuids={tuids_str}&back_scan=24&resolve=true'
+                
+        return (self._query_url,self._former_query_url)
+
+
+    def get_compare_former_data(self,tag_dict,out_data):
+        ## 获取与现在需要对比组具有相同tag的数据
+        ## get the same data with same tags on it 
+        old_dps_values = None
+        for f_data in out_data:
+            n_keys = tag_dict.keys()
+            # n_tags = tag_dict.items()
+            f_tags = f_data['tags']
+            f_keys = f_tags.keys()
+            FULL_tag = True
+            for t in f_keys:
+                if t not in n_keys:
+                    FULL_tag = False
+                else:
+                    if f_tags[t] != tag_dict[t]:
+                        FULL_tag = False
+            if FULL_tag:
+                old_dps_values = list(f_data.get('dps',{}).values())
+                break
+            else:
+                continue
+        return old_dps_values
+
+
+    def get_relation_and_threshold(self):
+        chain_relation = self.strategy.get('tsd_rule',{}).get('chain_relation')
+        threshold = 0
+        if chain_relation not in Chain_base_not_threhold_list:
+            threshold = float(self.strategy.get('tsd_rule', {}).get('threshold', None))
+        else:
+            threshold = None
+        return (chain_relation,threshold)
+
+
+    def compare_not_latest(self, now_data, former_data):
+        flag_strategy_ok = True
+        task_time = self.task_time
+        group_state = {}
+        LOG.debug('in the none latest handler')
+        for data in now_data:
+            # 分组信息
+            group = {k: v for k, v in data['tags'].items() if k in self.groups_keys}
+            group_str = ','.join([f'{k}={v}' for k, v in group.items()])
+            # 分组的实际结果
+            dps_values = list(data.get('dps', {}).values())
+            former_dps_values = self.get_compare_former_data(group,former_data)
+            if not dps_values or not former_dps_values:
+                continue
+            else:
+                real_value = float(format(dps_values[0], '0.2f'))
+                former_value = float(format(former_dps_values[0],'0.2f'))
+            chain_relation,threshold = self.get_relation_and_threshold()
+            result,diff_value = self.comp(real_value, chain_relation, former_value,threshold)
+            if result:
+                flag_strategy_ok = False
+                state = {'status': STATUS_ALERT}
+            else:
+                state = {'status': STATUS_OK}
+            # 保存该分组状态，字典序列化json
+            state['timestamp'] = int(task_time)
+            ## bug in 610line
+            if chain_relation not in Chain_base_not_threhold_list:
+                state['info'] = self.notify_message(relation=chain_relation,diff_value=diff_value,threshold=threshold)
+                # state['info'] = self.notify_message(chain_relation, threshold, diff_value)
+            else:
+                state['info'] = self.notify_message(chain_relation, result=result) 
+            group_state[group_str] = state
+            LOG.debug(f'group: {group_str}, state: {state}')
+        # 更新该策略的最新状态，写入redis，检查是否发送通知
+        # 多个分组，记录OK或者Alert，以及分组keys
         strategy_state = {
-            'status': status,
-            'timestamp': task_time,
-            'info': 'Alert happened.' if status == STATUS_ALERT else 'Alert recovered.'
+            'status': STATUS_OK if flag_strategy_ok else STATUS_ALERT,
+            'timestamp': int(task_time),
+            'group_keys': list(group_state.keys())  #每个分组group小项的信息
         }
-        # 更新mongodb
-        self.set_strategy_status(
-            strategy_id=strategy_id,
-            status='on' if status == STATUS_OK else 'alert'
-        )
-        # 更新到redis
-        r = self.redis_cli
-        r.set(f'strategy:{strategy_id}:state', json.dumps(strategy_state))
-        # 发布到redis队列
-        alert_type = '告警产生' if status == STATUS_ALERT else '告警撤销'
-        message = {
-            'strategy_id': strategy_id,
-            'strategy_name': self.strategy['property']['name'],
-            'alert_time': task_time,
-            'alert_info': f'【{alert_type}】\nInfo: {strategy_state["info"]}',
-            'is_recover': True if status == STATUS_OK else False,
-        }
-        channels = self.get_channel()
-        for channel in channels:
-            if channel == 'notice:slack':
-                slack = self.get_slack_attr()
-                message.update(**slack)
-            elif channel == 'notice:mail':
-                mail = self.get_mail_attr()
-                message.update(**mail)
-            r.publish(channel, json.dumps(message))
-            LOG.debug(f'Message is published by channel({channel}) => {message}')
+        if len(list(group_state.keys())) == 1:
+            # 只有一个分组，分组的info即告警策略的info
+            group_info = list(group_state.values())[0]['info']
+            strategy_state.update({'info': group_info})
+        return strategy_state,group_state
 
-
-@register_handler
-class DSLHandler(IHandler):
-    """处理dsl语法定义的告警策略"""
-    TYPE = 'dsl'
 
     def run(self):
-        """"""
-        # TODO
+        """
+        1）通过http请求tsd拿到指标的数值
+        2）对比阈值条件，得到该告警每个分组的状态信息（是否告警）、以及该告警策略的状态信息
+        3）将策略及其每个分组的状态保存到redis和mongo，如果状态发送变化的，则发送通知（告警产生/撤销）
+        ##TODO 需要修改成适合环比的条件进行
+        :return:
+        """
+        # self.check()
+        task_time = self.task_time
+        strategy_id = str(self.strategy['_id'])
+        q_url,former_q_url  = self.query_url
+        LOG.debug(f'query url is {q_url}')
+        res = requests.get(q_url).json()  # TODO: 超时处理/连接池
+        # res = json.loads(res)
+        LOG.debug('Request: {}, Got: {}'.format(q_url, res))
+        # urllib.urlopen()
+        former_res_origin = urllib.request.urlopen(former_q_url).read()
+        former_res = json.loads(former_res_origin)
+        LOG.debug('former_res has get')
+        group_state = {}
+        # flag_strategy_ok = True
+        if not res or not former_res:
+            # 无数据，默认为OK # TODO: 无数据，是否应该设置为Unknown状态？
+            strategy_state = {
+                'status': STATUS_ALERT,
+                'timestamp': int(task_time),
+            }
+        else:
+            if self.strategy['latest'] == False:
+                '''
+                This part is for non latest alert, because of the query url is different 
+                '''
+
+                strategy_state,group_state = self.compare_not_latest(res,former_res)
+                # strategy_state,group_state = do_compare_not_latest(res,former_res)
+
+            # else:
+            #     """
+            #     This part is for latest query alert 
+            #     
+            #     """
+            #     LOG.debug("in latest handler")
+            #     for data in res:
+            #         group = {k: v for k, v in data['tags'].items() if k in self.groups_keys}
+            #         group_str = ','.join([f'{k}={v}' for k, v in group.items()])
+            #         comparison = self.strategy.get('tsd_rule', {}).get('comparison', '==')
+            #         threshold = self.strategy.get('tsd_rule', {}).get('threshold', '0')
+            #         value = data['value']
+            #         value = float(value)
+            #         value = round(value,2)
+            #         if self.comp(value,comparison,threshold):
+            #             flag_strategy_ok = False 
+            #             state = {'status': STATUS_ALERT}
+            #         else:
+            #             state = {'status': STATUS_OK}
+            #         state['timestamp'] = int(task_time)
+            #         state['info'] = self.notify_message(comparison,threshold,value)
+            #         group_state[group_str] = state
+            #         strategy_state = {
+            #         'status': STATUS_OK if flag_strategy_ok else STATUS_ALERT,
+            #         'timestamp': int(task_time),
+            #         'group_keys': list(group_state.keys())  #每个分组group小项的信息
+            #         }
+            #         if len(list(group_state.keys())) == 1:
+            #         # 只有一个分组，分组的info即告警策略的info
+            #             group_info = list(group_state.values())[0]['info']
+            #             strategy_state.update({'info': group_info})
+
+        LOG.debug(f'strategy({strategy_id}) status: {strategy_state}')
+        r = self.redis_cli
+        # 更新redis中的策略状态
+        r.set(f'strategy:{strategy_id}:state', json.dumps(strategy_state))
+        aggregation = self.strategy['aggregation']
+        strategy_notice = self.check_group_state(self.strategy, task_time, group_state,aggregation)
+        if strategy_notice:
+            self.set_strategy_status(strategy_id=strategy_id, status=strategy_state['status'])
+
+
+# @register_handler
+# class AlwaysAlertHandler(IHandler):
+#     """总是告警的策略类型（用于测试）"""
+#     TYPE = 'test'
+#     _status = STATUS_OK
+
+#     def change_status(self):
+#         if self._status == STATUS_OK:
+#             self._status = STATUS_ALERT
+#         else:
+#             self._status = STATUS_OK
+
+#     def run(self):
+#         """"""
+#         self.change_status()
+#         status = self._status
+#         strategy_id = str(self.strategy['_id'])
+#         task_time = int(self.task_time)
+#         strategy_state = {
+#             'status': status,
+#             'timestamp': task_time,
+#             'info': 'Alert happened.' if status == STATUS_ALERT else 'Alert recovered.'
+#         }
+#         # 更新mongodb
+#         self.set_strategy_status(
+#             strategy_id=strategy_id,
+#             status='on' if status == STATUS_OK else 'alert'
+#         )
+#         # 更新到redis
+#         r = self.redis_cli
+#         r.set(f'strategy:{strategy_id}:state', json.dumps(strategy_state))
+#         # 发布到redis队列
+#         alert_type = '告警产生' if status == STATUS_ALERT else '告警撤销'
+#         message = {
+#             'strategy_id': strategy_id,
+#             'strategy_name': self.strategy['property']['name'],
+#             'alert_time': task_time,
+#             'alert_info': f'【{alert_type}】\nInfo: {strategy_state["info"]}',
+#             'is_recover': True if status == STATUS_OK else False,
+#         }
+#         channels = self.get_channel()
+#         for channel in channels:
+#             if channel == 'notice:slack':
+#                 slack = self.get_slack_attr()
+#                 message.update(**slack)
+#             elif channel == 'notice:mail':
+#                 mail = self.get_mail_attr()
+#                 message.update(**mail)
+#             r.publish(channel, json.dumps(message))
+#             LOG.debug(f'Message is published by channel({channel}) => {message}')
+
+
+# @register_handler
+# class DSLHandler(IHandler):
+#     """处理dsl语法定义的告警策略"""
+#     TYPE = 'dsl'
+
+#     def run(self):
+#         """"""
+#         # TODO
 
 
 if __name__ == '__main__':

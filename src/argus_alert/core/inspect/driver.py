@@ -25,6 +25,8 @@ from bson.objectid import ObjectId
 
 LOG = timed_logger()
 
+# import ptvsd
+# ptvsd.settrace(None,('0.0.0.0',14999))
 
 class DriverProcess(object):
     def __init__(self, task_queue, redis_addr, mongo_addr):
@@ -59,6 +61,10 @@ class DriverProcess(object):
         return self._redis_client
 
     async def get_aioredis_client(self):
+        '''
+        get an async redis client to handler to strategy change(include update、create、delete)
+        获得一个异步的redis客户端使得可以接收web端发送的命令
+        '''
         if not self._aio_redis_client:
             self._aio_redis_client = await aioredis.create_redis('redis://localhost')
             # LOG('aio_redis_client create done')
@@ -70,7 +76,10 @@ class DriverProcess(object):
 
     @property
     def strategys(self):
-        """告警策略列表"""
+        """
+        告警策略列表
+        get strategy from mongo and save it in memeroy 
+        """
         if not self._strategys:
             self._strategys = [_ for _ in \
                                self.mongo_client['argus-alert']['strategy'].find({'status': {'$in': ['ok', 'alert']}})]
@@ -93,6 +102,7 @@ class DriverProcess(object):
     def create_strategy(self, cid):
          """
          把新的策略添加到事件循环当中
+         put new created strategy into event loop
          """
          Oid = ObjectId(cid)
          strategy_cursor = self.mongo_client['argus-alert']['strategy'].find({"_id": Oid})
@@ -107,17 +117,26 @@ class DriverProcess(object):
     def detele_strategy(self, did):
         """
         把策略从strategy属性中删除，在下一次执行这个策略的时候进行判断，然后把那个coroutine退出
+        delete the strategy from Driver._strategy ,so that it won't run next time,exiting the coroutine.
         """
         Oid = ObjectId(did)
-        count = 0
+        # count = 0
         for strategy in self._strategys:
             if strategy['_id'] == Oid:
-                del (self._strategys[count])
+                # del(self._strategys[count])
+                self._strategys.remove(strategy)
                 LOG.debug('strategy delete')
                 break
-            count += 1
+            # count += 1 
+        # self._strategys.remove(did)
+        # LOG.debug('strategy delete')
+
 
     def update_single_strategy(self, uid):
+        '''
+        Update the strategy already created 
+        更新已经创建了的策略
+        '''
         self._update_dict[uid] = 1
 
     async def redis_cmd(self, channel):
@@ -125,6 +144,10 @@ class DriverProcess(object):
         处理单条策略的更新，异步读取Redis，然后进行处理。信道传输对象为Json{$action:strategy_id}
         如{'del':strategy_id}
         action == ('update' | 'del' | 'create')
+
+        Handling single strtegy update, get change signal from  the subscribe channel in redis 
+        There are three action is allowed "update","del","create"
+        
         """
         while True:
             msg = await channel.get(encoding='utf-8')
@@ -193,33 +216,13 @@ class DriverProcess(object):
                     LOG.warn('Production Coroutine done , wait new task put in')
                 else:
                     break
+            LOG.warn(f'exit code is {exist_status}')
             if not exist_status:
                 await asyncio.sleep(int(strategy.get('interval', self._default_interval)))
             else:
                 LOG.warn(f'the strategy has been delete ,id is {strategy["_id"]}')
                 break
 
-    # def reload_sentinel(self):
-    #     """事件循环的重启操作，通过监听redis中的发送cmd:reload_strategy的channel"""
-    #     # TODO：待重构
-    #     pubsub = self.redis_client.pubsub(ignore_subscribe_messages=True)
-    #     pubsub.subscribe(CHANNEL_CMD_RELOAD_STRATEGY)
-    #     while True:
-    #         time.sleep(1)
-    #         # get_message() uses the system’s ‘select’ module to quickly poll the connection’s socket
-    #         msg = pubsub.get_message()
-    #         if msg is not None:
-    #             print('Got msg: ', msg)
-    #             if decode_utf8(msg['data']) == CMD_RELOAD_STRATEGY:
-    #                 print('Got cmd: ', CMD_RELOAD_STRATEGY)
-    #                 self.reload_strategy()
-
-    # def reload_strategy(self):
-    #     """重新载入告警策略"""
-    #     # TODO：待重构
-    #     # make use of @property，just set to None and they would restore themselves
-    #     self._strategys, self._id_strategy_dict = None, None
-    #     self.rebuild_loop()
 
     def run_loop(self):
         """生成任务的协程的事件循环"""
@@ -238,26 +241,6 @@ class DriverProcess(object):
                 asyncio.ensure_future(task)
             self.event_loop.run_forever()
 
-    # def exit_loop(self):
-    #     """退出事件循环"""
-    #     try:
-    #         # TODO: how to close gracefully
-    #         self._event_loop.shutdown_asyncgens()
-    #         self._event_loop.stop()
-    #         self._event_loop.close()
-    #     except:
-    #         pass
-    #     print('Exit event loop.')
-    #     print('loop closed? ', self._event_loop.is_closed())
-
-    # def rebuild_loop(self):
-    #     """重建整个事件循环"""
-    #     self.exit_loop()
-    #     new_loop = asyncio.new_event_loop()
-    #     asyncio.set_event_loop(new_loop)
-    #     self._event_loop = None
-    #     Thread(target=self.reload_sentinel).start()
-    #     self.run_loop()
 
     def run(self):
         """主入口"""

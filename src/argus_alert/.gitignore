@@ -1,0 +1,7 @@
+.idea
+*.pyc
+argus_alert/tmp/*
+!argus_alert/tmp/.gitkeep
+*.log
+__pycache__/*
+.vscode

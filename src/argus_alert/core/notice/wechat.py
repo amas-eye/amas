@@ -7,10 +7,13 @@ import asyncio
 
 from pymongo import MongoClient
 import aiohttp
+from argus_alert.core.utils.log import timed_logger
+from argus_alert.etc.bootstrap import DefaultConfig
 
-
-PUSH_ALERT_URL = os.environ.get('PUSH_ALERT_URL') or 'http://127.0.0.1/some_path'
-
+LOG = timed_logger()
+# PUSH_ALERT_URL = os.environ.get('PUSH_ALERT_URL') or 'http://127.0.0.1/some_path'
+# PUSH_ALERT_URL = "http://114.215.85.142/argus-internal/controller/push_alert"
+PUSH_ALERT_URL = DefaultConfig.PUSH_ALERT_URL
 
 def send_wechat(tasks: list):
     """
@@ -53,34 +56,10 @@ def send_wechat(tasks: list):
         }
     }
     """
-
-    assert tasks is not None, '`tasks` should be not none iterable.'
-
-    user_ids = [task.get('username') for task in tasks]
-    user_id2open_id = {}
-
-    client = get_client()
-    db = client['argus_users']
-    coll = db['users']
-    for user_id in user_ids:
-        condition = {'wechat_id': user_id}
-        cursor = coll.find(condition)
-        for user in cursor:
-            user_id2open_id[user_id] = user['wechat_id']
-    client.close()
-
-    pushes = []
-    for task in tasks:
-        push = {}  # Conform the wechat pattern
-        push['template_id'] = task.get('template_id')
-        push['data'] = task.get('data')
-        push['touser'] = user_id2open_id.get(task.get('username'))
-        pushes.append(push)
-
-    # Should use `asyncio.new_event_loop()` instead in non-main thread.
+    
     event_loop = asyncio.new_event_loop()
     asyncio.set_event_loop(event_loop)
-    event_loop.run_until_complete(_async_send_wechat(pushes))
+    event_loop.run_until_complete(_async_send_wechat(tasks))
     event_loop.close()
 
 
@@ -97,5 +76,10 @@ async def _async_send_wechat(pushes):
     async with aiohttp.ClientSession() as session:
         for push in pushes:
             async with session.post(url=PUSH_ALERT_URL, json=push) as resp:
-                print(resp.status)
-                print(await resp.text())
+                # print(resp.status)
+                LOG.debug(f'wechat push return status {resp.status}')
+                # print(await resp.text())
+                resp_text = await resp.text()
+                LOG.debug(f'wechat push return status {resp_text}')
+                LOG.debug('POST wechat +1')
+        LOG.debug('wechat_pushes done')

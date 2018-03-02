@@ -12,14 +12,13 @@ class DefaultConfig(object):
     OPENTSDB_ADDR = 'localhost:4242'
     REDIS_ADDR = 'redis:///@localhost:6379/0'
     MONGO_ADDR = 'mongodb://localhost:27017/'
-    API_SERVE_ADDR = '0.0.0.0:8888'
 
     DRIVER_HOST = ''
     DRIVER_PORT = 7001
     AUTH_KEY = 'argus@useease'
     EXECUTOR_WORKER = cpu_count()
     NOTIFIER_WORKER = cpu_count()
-
+    PUSH_ALERT_URL = "http://114.215.85.142/argus-internal/controller/push_alert"
 
 class ProdConfig(DefaultConfig):
     """生产环境"""

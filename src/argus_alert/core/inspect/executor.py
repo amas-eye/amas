@@ -41,18 +41,27 @@ class ExecutorProcess(object):
 
     @property
     def redis_client(self):
+        '''
+        get a redis client to record and push alert to notifier
+        '''
         if not self._redis_client:
             self._redis_client = Redis.from_url(self._redis_addr, decode_response=True)
         return self._redis_client
 
     @property
     def mongo_client(self):
+        '''
+        get a mongo client to connect to the mongodb to read strategy
+        '''
         if not self._mongo_client:
             self._mongo_client = MongoClient(self._mongo_addr)
         return self._mongo_client
 
     def receiver_sentinel(self):
-        """负责从远程队列接收task的线程，并置入本地队列"""
+        """
+        负责从远程队列接收task的线程，并置入本地队列
+        get task item from remote queue(python remote queue),
+        """
         while True:
             try:
                 item = self._remote_q.get(timeout=self.q_get_timeout)
@@ -68,7 +77,10 @@ class ExecutorProcess(object):
                 break
 
     def queue_sentinel(self):
-        """统计本地队列大小"""
+        """
+        统计本地队列大小
+        To calculat local queue size 
+        """
         LOG.info('start local queue sentinel...')
         while True:
             time.sleep(5)
@@ -96,7 +108,10 @@ class ExecutorProcess(object):
     #
 
     def consume_task(self):
-        """处理任务的线程"""
+        """
+        处理任务的线程
+        The Thread to handler strategy_task 
+        """
         while True:
             try:
                 item = self._local_q.get_nowait()
@@ -114,7 +129,9 @@ class ExecutorProcess(object):
                 LOG.debug('task done.')
 
     def run(self):
-        """"""
+        """
+        Try to run the exector
+        """
         Thread(target=self.receiver_sentinel, name='receiver').start()
         Thread(target=self.queue_sentinel, name='queue_sentinel').start()
         consumers = [Thread(target=self.consume_task, name=f'consumer-{n}') for n in

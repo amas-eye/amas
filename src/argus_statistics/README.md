@@ -5,11 +5,11 @@
 
 ### 使用方法
 ####启动
-nohup python start_dashboard.py --start &
+nohup python start_dashboard.py --start & 
 ####重启
-nohup python start_dashboard.py --restart \&
+nohup python start_dashboard.py --restart \& 
 ####停止
-nohup python start_dashboard.py --stop &
+nohup python start_dashboard.py --stop & 
 
 
 ### host_stat 和 overall_health 共用一个配置文件[host_config.json]
@@ -18,7 +18,7 @@ nohup python start_dashboard.py --stop &
   - manage_host: 用于连接采集管理机器的IP
   - manget_port: 用于连接采集管理机器的端口
   - alive_interval: 用于判断机器是否关闭的时间，大于此时间即为关闭(默认时间为1h)
-
+  
 ### 更新频率
 更新频率可以通过对配置文件中的update_config.json中"update_interval"进行修改
 默认更新频率为5分钟，默认单位为分钟，假如想以小时为更新单位，应该写为 n*60(n为小时数)

@@ -46,7 +46,6 @@ def update_sys_resource():
     result['check_time'] = int(time.time())
     result['cpu_all'] = cpu_cores
     result['cpu_usage'] = cpu_usage
-    result['cpu_using'] = result['cpu_all'] * result['cpu_usage']
     result['mem_all'], result['mem_using'] = mem_usage
     result['disk_all'], result['disk_using'] = df_usage
     result['mem_usage'] = result['mem_using'] / result['mem_all']

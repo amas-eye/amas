@@ -95,7 +95,9 @@ def check_scale(metric: str, interval_time: str):
     :rtype: tuple Object with 2 elements, int and list
     """
 
-    cluster = Cluster('argus-statistics', 'scale', 'test')
+    # cluster = Cluster('argus-statistics', 'scale', 'test') 
+    cluster_scale = len(json.load(urlopen(
+        f'http://localhost:8001/api/collector/agent')))
     count = 0
     ignored = []
 
@@ -118,7 +120,7 @@ def check_scale(metric: str, interval_time: str):
         if i == 1:  # last try
             break
 
-        if count != cluster.scale:
+        if count != cluster_scale:
             count = 0
             ignored.clear()
             continue

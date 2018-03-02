@@ -7,8 +7,5 @@ __pycache__/
 .gitconfig
 .DS_Store
 node_modules/
-src/*
-docs/deploy/
-src/argus_collector/collectors/300/
-src/argus_collector/logs/
-src/web/server/logs/
+tmp/
+!tmp/.gitkeep

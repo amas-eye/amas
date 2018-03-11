@@ -1,0 +1,40 @@
+# Docker部署方式
+
+## Docker运行
+1. 安装docker
+2. 创建docker网络
+```
+docker network create amas
+```
+3. 运行数据库服务：
+```
+# opentsdb(v2.3.0+)
+docker run -d -p 4242:4242 --name opentsdb --network amas eacon/docker-opentsdb
+
+# mongo(v3.10.0+)
+docker run -d -p 27017:27017 --name mongo --network amas mongo
+
+# redis(v3.10.0+)
+docker run -d -p 6379:6379 --name redis --network amas redis
+```
+4. 运行采集Agent（含Agent Manager）：
+```
+docker run -d --name collector --network amas -p 8001:8001 eacon/argus_collector
+```
+5. 运行告警模块：
+```
+docker run -d --name alert --network amas eacon/argus_alert
+```
+6. 运行统计模块：
+```
+docker run -d --name statistics --network amas eacon/argus_statistics
+```
+7. 运行Web服务：
+```
+docker run -d --name web --network amas eacon/argus-web
+```
+
+
+## Docker-Compose编排运行
+1. 安装docker和docker-compose
+2. 拉取compose文件，cd到文件所在目录并运行```docker-compose up```

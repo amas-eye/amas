@@ -1,0 +1,145 @@
+{
+  "process.py": {
+    "sys.proc.python": "Python进程存活状态"
+  },
+  "cpu_jiffies.py": {
+    "cluster.cpu.usage": "CPU使用率"
+  },
+  "net_dev.py": {
+    "cluster.net.dev.receive": "网卡流量接收速率",
+    "cluster.net.dev.transmit": "网卡流量发送速率"
+  },
+  "ping.py": {
+    "sys.network.rtt": "Ping延迟",
+    "sys.network.lossrate": "Ping丢包率"
+  },
+  "memstat.py": {
+	"mem.bytes.memtotal": "内存总量(字节)",
+	"mem.bytes.memfree": "空闲内存(字节)",
+	"mem.bytes.buffers": "已缓冲内存(字节)",
+	"mem.bytes.cached": "已缓存内存(字节)",
+	"mem.bytes.used": "已使用内存(字节)"
+  },
+  "iostat.py":{
+	"iostat.disk.read_requests":"",
+	"iostat.disk.read_merged": "",
+	"iostat.disk.read_sectors": "",
+	"iostat.disk.msec_read": "",
+	"iostat.disk.write_requests": "",
+	"iostat.disk.write_merged": "",
+	"iostat.disk.write_sectors":"",
+	"iostat.disk.msec_write": "",
+	"iostat.disk.ios_in_progress":"",
+	"iostat.disk.msec_total": "",
+	"iostat.disk.msec_weighted_total":"",
+	"iostat.disk.svctm":"",
+	"iostat.disk.r_await":"",
+	"iostat.disk.w_await":"",
+	"iostat.disk.await":"",
+	"iostat.disk.util":"",
+	"iostat.part.msec_weighted_total":""
+
+  }
+  "dfstat.py": {
+ 	"df.bytes.total":"磁盘总字节数",
+ 	"df.bytes.used": "已用字节数",
+ 	"df.bytes.percentused": "已用字节所占比例",
+ 	"df.bytes.free" :"可用字节数",
+ 	"df.inodes.total" :"inode总数",
+ 	"df.inodes.used":"已用inode数",
+ 	"df.inodes.percentused":"已用indoe所占百分比",
+ 	"df.inodes.free":"可用inode数" 
+  }
+  "memstat.py":{
+	"mem.bytes.memtotal": "内存字节数",
+	"mem.bytes.memfree":"可用内存字节数",
+	"mem.bytes.membuffers":"buffer内存字节数",
+	"mem.bytes.cached":"cached内存字节数",
+	"mem.bytes.used":"已用内存字节数",
+	"mem.bytes.swapcached": "swapcached字节数",
+	"mem.bytes.active": "活跃内存字节数",
+	"mem.bytes.inactive": "未活跃内存字节数",
+	"mem.bytes.active(anon)": "??",
+	"mem.bytes.inactive(anon)":"??",
+	"mem.bytes.active(file)": "??",
+	"mem.bytes.inactive(file)": "??",
+	"mem.bytes.unevictable": "",
+	"mem.bytes.mlocked": "",
+	"mem.bytes.swaptotal": "swap总字节数",
+	"mem.bytes.swapfree": "swap空闲字节数",
+	"mem.bytes.dirty": "等待写会磁盘内存字节数",
+	"mem.bytes.writeback": "正在写入磁盘内存字节数",
+	"mem.bytes.anonpages":"非文件支持页面映射到用户空间页表",
+	"mem.bytes.mapped": "映射到内存的文件",
+	"mem.bytes.shmem":"tmpfs使用内存数",
+	"mem.bytes.slab": "内核内数据结构缓存",
+	"mem.bytes.sreclaimable":"可回收内存",
+	"mem.bytes.sunreclaim":"不可回收内存",
+	"mem.bytes.kernelstack":"已分配内核堆栈大小",
+	"mem.bytes.pagetables": "最低级别页面专用内存量",
+	"mem.bytes.nfs_unstable":"已发送给服务器的NFS页面但为确认稳定存储内存量",
+	"mem.bytes.bounce":"块设备已分配内存量",
+	"mem.bytes.writebacktmp": "临时写会缓冲FUSE内存量",
+	"mem.bytes.commitlimit":"当前系统可分配内存量",
+	"mem.bytes.committed_as":"当前系统已分配内存量",
+	"mem.bytes.vmalloctotal": "vmalloc总内存量",
+	"mem.bytes.vmallocused":"已用vmalloc内存量",
+	"mem.bytes.vmallocchunk":"vmalloc可用最大连续块",
+	"mem.bytes.hardwarecorrupted": "",
+	"mem.bytes.anonhugepages": "非文件支持映射到用户空间大页面",
+	"mem.bytes.shmemhugepages":"拥有大页面且被共享内存及tmpfs使用的内存量",
+	"mem.bytes.shmempmdmapped": "映射到用户空间拥有大页面的共享内存量",
+	"mem.bytes.hugepages_total": "大页面池内存总量",
+	"mem.bytes.hugepages_free": "未分配大页面池内存量",
+	"mem.bytes.hugepages_rsvd": "保留(承诺分配)大页面内存量",
+	"mem.bytes.hugepages_surp":"高于/proc/sys/vm/nr_hugepags的大页面内存量",
+	"mem.bytes.hugepagesize":"大页面大小",
+	"mem.bytes.directmap4k":"4k页面中由内核线性映射的内存量",
+	"mem.bytes.directmap2m": "2m页面中由内核线性映射的内存量"
+  }
+  "flume_metric.py":{
+	"自定义指标": "指标值"
+  },
+  "spark.py":{
+	"spark.application.counts": "spark应用总量",
+	"spark.application.duration": "spark应用持续时间",
+	"spark.application.taskComplRate": "spark任务完成率",
+	"spark.application.activietask": "spark活动任务",
+	"spark.application.failedtask": "spark失败任务",
+	"spark.application.completedtask": "spark已完成任务",
+	"spark.executor.gctime": "spark executor gc 时间",
+	"spark.executor.duration": "spark executor 持续时间"
+  },
+  "mapreduce.py":
+  {
+	"hadoop.mapreduce.appSubmitted": "已提交任务数",
+	"hadoop.mapreduce.appCompleted": "已完成任务数",
+	"hadoop.mapreduce.appPending": "等待中任务数",
+	"hadoop.mapreduce.appRunning": "运行中任务数",
+	"hadoop.mapreduce.appFailed": "已失败任务数",
+	"hadoop.mapreduce.reservedMB": "保留内存",
+	"hadoop.mapreduce.availableMB": "可用内存",
+	"hadoop.mapreduce.allocatedMB": "已分配内存",
+	"hadoop.mapreduce.totalMB": "总内存",
+	"hadoop.mapreduce.reservedVirtualCores": "保留虚拟核心数",
+	"hadoop.mapreduce.availableVirtualCores": "可用核心数",
+	"hadoop.mapreduce.allocatedVirtualCores": "已分配虚拟核心数",
+	"hadoop.mapreduce.totalVirtualCores": "虚拟核心总数",
+	"hadoop.mapreduce.containersAllocated": "已分配容器数",
+	"hadoop.mapreduce.containersReserve": "保留容器数",
+	"hadoop.mapreduce.containersPending": "等待容器数",
+	"hadoop.mapreduce.totalNodes": "总节点数",
+	"hadoop.mapreduce.activeNodes": "激活节点数",
+	"hadoop.mapreduce.lostNodes": "丢失节点数",
+	"hadoop.mapreduce.unhealthyNodes": "不健康节点数",
+	"hadoop.mapreduce.decommissionedNodes": "退役节点数",
+	"hadoop.mapreduce.rebootedNodes": "重启节点数",
+	"hadoop.mpreduce.totalVmemAllocatedContainersMB": "已分配容器虚拟内存总量",
+	"hadoop.mapreduce.totalVCoresAllocatedContainers": "已分配容器虚拟核心总数",
+	"hadoop.mapreduce.totalPmemAllocatedContainersMB": "已分配容器物理内存总量"
+
+  }
+
+
+
+}

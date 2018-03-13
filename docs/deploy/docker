@@ -19,11 +19,11 @@ docker run -d -p 6379:6379 --name redis --network amas redis
 ```
 4. 运行采集Agent（含Agent Manager）：
 ```
-docker run -d --name collector --network amas -p 8001:8001 eacon/argus_collector
+docker run -d --name collector --network amas -p 8001:8001 eacon/argus_collector run
 ```
 5. 运行告警模块：
 ```
-docker run -d --name alert --network amas eacon/argus_alert
+docker run -d --name alert --network amas eacon/argus_alert run
 ```
 6. 运行统计模块：
 ```

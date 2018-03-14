@@ -27,7 +27,7 @@ docker run -d --name alert --network amas eacon/argus_alert run
 ```
 6. 运行统计模块：
 ```
-docker run -d --name statistics --network amas eacon/argus_statistics
+docker run -d --name statistics --network amas eacon/argus_statistics run
 ```
 7. 运行Web服务：
 ```

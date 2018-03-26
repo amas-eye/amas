@@ -22,7 +22,7 @@ Amas现由[@Eacon](https://github.com/EaconTang)和他的开发团队负责维�
 
 ## 技术栈
 * 编程语言：Python, NodeJS
-* Web服务：Vue, ECharts, Express
+* Web服务：Vue, ECharts, Javascript
 * 后台服务：
     - HBase, OpenTSDB, MongoDB, Redis
     - Spark, Kafka...

@@ -21,8 +21,12 @@ Amas是基于OpenTSDB开发的统一监控平台，为大数据平台而生，�
 Amas现由[@Eacon](https://github.com/EaconTang)和他的开发团队负责维护, 详见[AUTHORS](AUTHORS).
 
 ## 技术栈
-* 编程语言：Python, NodeJS
-* Web服务：Vue, ECharts, Javascript
+* 编程语言：
+    - (Backend)Python
+    - (Web)Javascript
+* Web服务：
+    - Vue, ECharts, Webpack
+    - Express(NodeJS)
 * 后台服务：
     - HBase, OpenTSDB, MongoDB, Redis
     - Spark, Kafka...

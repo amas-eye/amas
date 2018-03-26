@@ -23,8 +23,12 @@ Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop tea
 
 
 ## Technology Stack
-* Program language：Python, Javascript
-* Web Service：Vue, ECharts, Express
+* Program language：
+    - (Backend)Python
+    - (Web)Javascript
+* Web Service：
+    - Vue, ECharts, Webpack
+    - Express(NodeJS)
 * Backend Service：
     - HBase, OpenTSDB, MongoDB, Redis
     - Spark, Kafka

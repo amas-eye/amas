@@ -19,7 +19,8 @@ RUN cd /opt/amas/argus-web/server && \
 RUN cd /opt/amas/argus-web/app && \
     npm install
 # build app, locate to server/
-RUN npm run build && \
+RUN cd /opt/amas/argus-web/app && \
+    npm run build && \
     mv dist/ /opt/amas/argus-web/server/app
 
 

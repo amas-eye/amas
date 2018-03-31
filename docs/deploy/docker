@@ -36,11 +36,12 @@ docker run -d --name statistics --network amas eacon/argus_statistics
 
 7. 运行Web服务：
 ```
-docker run -d --name web --network amas eacon/argus-web
+docker run -d --name web --network amas -p 8080:8080 eacon/argus-web
 ```
 
 
 
 ## Docker-Compose编排运行
 1. 安装docker和docker-compose
-2. 拉取compose文件，cd到文件所在目录并运行```docker-compose up```
+2. 拉取compose文件，cd到文件所在目录并运行:
+```docker-compose up -d```

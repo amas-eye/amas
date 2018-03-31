@@ -1,38 +1,6 @@
-version: "1.0"
-
 services:
 
   opentsdb:
-    image: "eacon/docker-opentsdb"
-    container_name: "opentsdb"
+    image: eacon/docker-opentsdb
     ports:
       - "4242:4242"
-    ulimits:
-      nproc: 65535
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "http://127.0.0.1:4242/api/stats"]
-
-  mongo:
-    image: "mongo"
-    container_name: "mongo"
-    ports:
-      - "27017:27017"
-    restart: unless-stopped
-
-  redis:
-    image: "redis"
-    container_name: "redis"
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-
-  collector:
-    image: "eacon/argus_collector"
-    container_name: "collector"
-    ports:
-      - "8001:8001"
-    hostname: "collector_demo"
-    restart: unless-stopped
-    depends_on:
-      - opentsdb

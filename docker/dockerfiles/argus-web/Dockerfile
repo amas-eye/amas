@@ -24,6 +24,9 @@ RUN cd /opt/amas/argus-web/app && \
     mv dist/ /opt/amas/argus-web/server/app
 
 
+ADD init_user.sh /usr/local/bin/init_user
+RUN chmod +x /usr/local/bin/init_user
+
 ADD run.sh /usr/local/bin/run
 RUN chmod +x /usr/local/bin/run
 

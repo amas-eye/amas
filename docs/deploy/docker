@@ -30,6 +30,17 @@ docker run -d --name statistics --network amas eacon/argus_statistics
 docker run -d --name web --network amas -p 8080:8080 eacon/argus-web
 ```
 
+## 访问界面
+- 访问本地8080端口（通过```127.0.0.1```而不是```localhost```）：[http://127.0.0.1:8080](http://127.0.0.1:8080)
+
+
+## 初始化
+- 执行web容器的命令，初始化默认账户（用户名/密码：admin/123）：
+```
+docker exec -it web init_user
+```
+
+
 ## Docker-Compose编排运行
 1. 安装docker和docker-compose
 2. 拉取compose文件，cd到文件所在目录并运行:

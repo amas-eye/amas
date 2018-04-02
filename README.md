@@ -80,20 +80,25 @@ docker exec -it web init_user
 
 ## Screenshots
 Dashboard
+
 ![](./docs/img/Dashboard1.png)  
 ![](./docs/img/Dashboard2.png)  
 
 Metric chart view
+
 ![](./docs/img/chartview.png)
 
 Alert rules and messages:
+
 ![](./docs/img/alert1.png)
 ![](./docs/img/alert2.png)
 
 Slack notification:
+
 ![](./docs/img/alert_notify_slack.jpeg)
 
 Tracing display:
+
 ![](./docs/img/callchain1.png)  
 ![](./docs/img/callchain2.png)
 

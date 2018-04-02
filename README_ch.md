@@ -6,8 +6,8 @@ Language: [English](README.md) | [中文](README_ch.md)
 
 
 ## Amas是什么
-Amas是基于大数据平台技术的智能监控系统，其特点包括：
-1. 全维度监控，覆盖从操作系统、中间件、大数据平台组件(Hadoop/Spark/HBase/Kakfa等)到代码级的关键性能指标
+Amas是基于大数据平台技术开发的统一监控平台，其特点包括：
+1. 全维度监控指标，覆盖从操作系统、中间件、大数据平台(Hadoop/Spark/HBase/Kakfa等)到代码级别
 2. 可扩展、自定义的采集框架，支持不同语言(Python/Perl/Shell/...)开发的采集器
 3. 基于OpenTSDB/HBase的海量数据存储架构，可快速读写大量监控指标，满足真实生产环境
 4. 清新简约的Web界面，功能强大但简单易用
@@ -41,6 +41,7 @@ Amas是基于大数据平台技术的智能监控系统，其特点包括：
 
 
 ## Docker快速部署
+目前Amas的代码已经通过DockerHub实现自动构建，推荐使用docker来快速体验：
 1. 安装docker
 2. 保存如下shell脚本并执行：
 ```bash
@@ -98,6 +99,7 @@ Dashboard
 ![](./docs/img/alert2.png)
 
 Slack通知
+
 ![](./docs/img/alert_notify_slack.jpeg)
 
 调用链
@@ -109,7 +111,7 @@ Slack通知
 
 
 ## 架构
-### 模块划分
+### 模块划分(对应repo)
 - Web服务：argus-web
 - 后台：
     * 采集器：argus_collector
@@ -131,3 +133,10 @@ Amas现由[@Eacon](https://github.com/EaconTang)和他的开发团队负责维�
 ## 其他
 * Amas的内部开发代号为argus，这也会保留在开源项目的源码中。
 
+
+## ToDoList
+- [x] 告警引擎，支持DSL语言定义规则
+- [x] 集成开源的Zabbix、Nagios等监控数据
+- [x] 基于AspectJ的Java字节码注入监控
+- [x] 基于pyrasite的python字节码注入监控
+- [x] 更多AIOps方案的落地...

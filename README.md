@@ -7,16 +7,16 @@ Language: [English](README.md) | [中文](README_ch.md)
 
 ## What is Amas
 Amas is a monitor alert system based on big-data platform, with features below：
-1. Provide metrics in full dimension, covering from operating-system, middleware, big-data platform(Hadoop/Spark/HBase/Kakfa...) to code level
-2. Highly extensible collector agent, support custom metrics written by different scripting language(Python/Perl/Shell/...)
-3. Ability to read/write mass data quickly due to HBase/OpenTSDB on real production environment
-4. Web UI is sexy and powerful, yet easy to use
-5. Distributed asynchronous alert engine based on Python multiprocess and async/await, which makes it easily extend system processing ability
-6. Multi-channel and customizable notify method(wechat/mail/slack/api...)
-7. Alerts could be aggregated by groups, preventing from "Alert Storm"
-8. Callchain metric collect and display based on OpenTracing, events are traceable
-9. Anomaly dections service based on machine learning, landing AIOps
-10. Due to micro-service architect, compatibly deploy with docker and docker-compose
+1. Provide metrics in full dimension, covering from operating-system, middleware, big-data platform(Hadoop/Spark/HBase/Kakfa...) to code level.
+2. Highly extensible collector agent, support custom metrics written by different scripting language(Python/Perl/Shell/...).
+3. Ability to read/write mass data quickly due to HBase/OpenTSDB on real production environment.
+4. Web UI is sexy and powerful, yet easy to use.
+5. Distributed asynchronous alert engine based on Python multiprocess and async/await, which makes it easily extend system processing ability.
+6. Multi-channel and customizable notify method(wechat/mail/slack/api...).
+7. Alerts could be aggregated by groups, preventing from "Alert Storm".
+8. Distributed tracing collect and display based on Jagger, events are traceable.
+9. Anomaly dections service based on machine learning, landing AIOps.
+10. Due to micro-service architect, compatibly deploy with docker and docker-compose.
 11. ...
 
 
@@ -80,7 +80,6 @@ docker exec -it web init_user
 
 ## Screenshots
 Dashboard
-
 ![](./docs/img/Dashboard1.png)  
 ![](./docs/img/Dashboard2.png)  
 
@@ -94,7 +93,7 @@ Alert rules and messages:
 Slack notification:
 ![](./docs/img/alert_notify_slack.jpeg)
 
-Callchain display:
+Tracing display:
 ![](./docs/img/callchain1.png)  
 ![](./docs/img/callchain2.png)
 
@@ -105,7 +104,7 @@ Callchain display:
 - Backend:
     * Collector: argus_collector
     * Alert: argus_alert
-    * Callchain: argus_chain
+    * Tracing: argus_chain
     * Statistics: argus_statistics
     * AIOps: argus_aiops
 
@@ -119,9 +118,9 @@ Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop tea
 
 
 ## ToDoList:
-- [x] Support DSL defined rules in alert engine
-- [x] Integrate with Zabbix, Nagios...
-- [x] Java bytecode injection based on AspectJ
-- [x] Python bytecode injection based on pyrasite
-- [x] Landing more AIOps...
+- [] Support DSL defined rules in alert engine
+- [] Integrate with Zabbix, Nagios...
+- [] Java bytecode injection based on AspectJ
+- [] Python bytecode injection based on pyrasite
+- [] Landing more AIOps...
 

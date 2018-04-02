@@ -123,9 +123,9 @@ Amas is maintained by [@Eacon](https://github.com/EaconTang) and his develop tea
 
 
 ## ToDoList:
-- [] Support DSL defined rules in alert engine
-- [] Integrate with Zabbix, Nagios...
-- [] Java bytecode injection based on AspectJ
-- [] Python bytecode injection based on pyrasite
-- [] Landing more AIOps...
+- [ ] Support DSL defined rules in alert engine
+- [ ] Integrate with Zabbix, Nagios...
+- [ ] Java bytecode injection based on AspectJ
+- [ ] Python bytecode injection based on pyrasite
+- [ ] Landing more AIOps...
 

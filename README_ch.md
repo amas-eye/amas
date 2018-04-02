@@ -135,8 +135,9 @@ Amas现由[@Eacon](https://github.com/EaconTang)和他的开发团队负责维�
 
 
 ## ToDoList
-- [x] 告警引擎，支持DSL语言定义规则
-- [x] 集成开源的Zabbix、Nagios等监控数据
-- [x] 基于AspectJ的Java字节码注入监控
-- [x] 基于pyrasite的python字节码注入监控
-- [x] 更多AIOps方案的落地...
+
+- [ ] 告警引擎，支持DSL语言定义规则
+- [ ] 集成开源的Zabbix、Nagios等监控数据
+- [ ] 基于AspectJ的Java字节码注入监控
+- [ ] 基于pyrasite的python字节码注入监控
+- [ ] 更多AIOps方案的落地...

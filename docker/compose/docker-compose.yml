@@ -5,7 +5,7 @@ services:
     image: eacon/docker-opentsdb
     container_name: opentsdb
     networks:
-      amas_net:
+      amas:
         aliases:
           - opentsdb
     ports: 
@@ -17,7 +17,7 @@ services:
     ports:
       - "27017:27017"
     networks:
-      amas_net:
+      amas:
         aliases:
           - mongo
 
@@ -27,7 +27,7 @@ services:
      ports: 
        - "6379:6379"
      networks:
-       amas_net:
+       amas:
          aliases:
            - redis
 
@@ -37,7 +37,7 @@ services:
     ports: 
        - "8080:8080"
     networks:
-      amas_net:
+      amas:
         aliases:
           - web
     restart: always
@@ -46,7 +46,7 @@ services:
     image: eacon/argus_alert
     container_name: alert
     networks:
-      amas_net:
+      amas:
         aliases:
           - alert
      
@@ -54,7 +54,7 @@ services:
     image: eacon/argus_statistics
     container_name: statistics
     networks:
-      amas_net:
+      amas:
         aliases:
           - statistics
      
@@ -64,9 +64,9 @@ services:
     ports:
       - "8001:8001"
     networks:
-      amas_net:
+      amas:
         aliases:
           - collector
       
 networks:
-  amas_net: 
+  amas: 

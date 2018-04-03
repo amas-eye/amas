@@ -78,6 +78,22 @@ docker exec -it web init_user
 ```
 
 
+### Docker-Compose
+With docker-compose installed，you could run amas as below：
+1. git clone：
+```
+git clone https://github.com/amas-eye/amas.git; cd amas/docker/compose/
+```
+- Or just get that compose file：
+```
+mkdir amas; cd amas; curl https://raw.githubusercontent.com/amas-eye/amas/master/docker/compose/docker-compose.yml > docker-compose.yml
+```
+2. Execute command to run all containers up：
+```
+docker-compose up -d
+```
+
+
 ## Screenshots
 Dashboard
 

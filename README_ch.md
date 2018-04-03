@@ -76,8 +76,21 @@ docker run -d --name web --network amas -p 8080:8080 eacon/argus-web
 docker exec -it web init_user
 ```
 
-<!-- ### Docker-Compose -->
-<!-- （更新中） -->
+### Docker-Compose
+如果你使用了docker-compose，可以通过如下方式快速运行：
+1. git clone本仓库：
+```
+git clone https://github.com/amas-eye/amas.git; cd amas/docker/compose/
+```
+- 或者直接获取文件：
+```
+mkdir amas; cd amas; curl https://raw.githubusercontent.com/amas-eye/amas/master/docker/compose/docker-compose.yml > docker-compose.yml
+```
+2. 执行：
+```
+docker-compose up -d
+```
+
 
 <!-- ## 生产环境部署指南 -->
 <!-- （更新中） -->

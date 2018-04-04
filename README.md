@@ -15,7 +15,7 @@ Amas is a monitor alert system based on big-data platform, with features belowï¼
 6. Multi-channel and customizable notify method(wechat/mail/slack/api...).
 7. Alerts could be aggregated by groups, preventing from "Alert Storm".
 8. Distributed tracing collect and display based on Jagger, events are traceable.
-9. Anomaly dections service based on machine learning, landing AIOps.
+9. Anomaly detection service based on machine learning, landing AIOps.
 10. Due to micro-service architect, compatibly deploy with docker and docker-compose.
 11. ...
 

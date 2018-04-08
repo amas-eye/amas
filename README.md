@@ -96,7 +96,8 @@ docker-compose up -d
 
 
 ## Metrics（Partly）
-```
+<div style="width: 100%; height: 600px; overflow: scroll;">
+<pre><code>
 ## metric 命名规范
 - (总控件).控件.采集指标名   ts   value  host=<>  (node=master/slave[num])
   eg:
@@ -781,8 +782,9 @@ HDFS:
 	spark.executor.duration					float   attached tag: appId, executorId
 
 
+</code></pre>
 
-```
+</div>
 
 
 

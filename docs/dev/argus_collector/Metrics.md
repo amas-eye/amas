@@ -1,17 +1,21 @@
 # Metrics汇总(部分)
 
 ## metric 命名规范
-- (总控件).控件.采集指标名   ts   value  host=<>  (node=master/slave[num])
-  eg:
-  hadoop.hbase.averageload ts  value host=$hostname  node=master1
+- ```(总控件).控件.采集指标名 timestamp value tagk=tagv(...)```
+  - eg: ```hadoop.hbase.averageload 1234567890 value host=$hostname node=master1```
+
 
 
 ## 系统基础服务性能指标
+
 - net_dev.py
+```
   cluster.net.dev.receive    网卡总接收字节数
   cluster.net.dev.transmit   网卡总发出字节数
+```
 
 - netstat.py（一般不使用配置给用户，暂时不标注）
+```
   net.sockstat.num_sockets
   net.sockstat.num_timewait
   net.sockstat.sockets_inuse
@@ -49,9 +53,10 @@
   net.stat.tcp.packetloss.recovery
   net.stat.udp.datagrams
   net.stat.udp.errors
-
+```
 
 - ifstat.py
+```
   proc.net.bytes    网卡的字节数 （需要看方向，方向在tag中会显示）
   proc.net.packets  网卡的包的数量（方向是in/out)
   proc.net.errs     网卡错误包的数
@@ -59,10 +64,11 @@
   proc.net.fifo.errs 网卡队列错误数
   proc.net.frame.errs 网卡帧的错误数
   proc.net.compressed 网卡是否启用压缩
-
+```
 
 
 - mysql.py
+```
     mysql.innodb.buffer_pool_free                      InnoDB 缓冲池空闲页面数  #show status; Innodb_buffer_pool_pages_free
     mysql.innodb.buffer_pool_total		               InnoDB 缓冲池的总页数    #show status; Innodb_buffer_pool_pages_total
     mysql.innodb.buffer_pool_used		               InnoDB 缓冲池中已使用的页数 #show status; Innodb_buffer_pool_pages_free
@@ -104,7 +110,7 @@
     mysql.replication.seconds_behind_master	seconds	   主服务器（master）和从服务器（slave）之间的滞后时间  #show slave status;Seconds_Behind_Master
     mysql.replication.slave_running		               一个布尔值，判断该服务器是否为连接到主服务器（master）的从服务器（slave） #show slave status 对两个thread进行判断
     mysql.performance.lock_table                       #show status; Com_lock_tables
-
+```
 
 ## 大数据平台性能指标
 
@@ -643,6 +649,7 @@ HDFS:
 (yarn)MapReduce
 
 - mapreduce.py
+```
 	# parse the configuration
 	node = ResoucreManager
 	hadoop.mapreduce.appsSubmitted 			int 	The number of applications submitted
@@ -668,8 +675,10 @@ HDFS:
 	hadoop.mapreduce.unhealthyodes 			int 	The number of unhealthy nodes
 	hadoop.mapreduce.decommissionedNodes 	int 	The number of nodes decommissioned
 	hadoop.mapreduce.rebootedNodes 			int 	The number of nodes rebooted
+```
 
 - spark.py
+```
     spark.application.counts 				int		attached tag: stauts[completed|running
 	spark.application.duration              int(ms)     attached tag: status[completed|runnning], appId,
 
@@ -682,5 +691,5 @@ HDFS:
 	---completed application only
 	spark.executor.gctime					float   attached tag: appId, executorId
 	spark.executor.duration					float   attached tag: appId, executorId
-
+```
 
